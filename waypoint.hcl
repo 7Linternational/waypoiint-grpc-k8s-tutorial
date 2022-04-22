@@ -48,9 +48,9 @@ app "go-grpc" {
       ingress "http" {
         default = false
         path    = "/"
-        host    = "k8s-grpc.7ldev.com"
+        host    = GRPS_URL
         tls {
-          hosts       = ["k8s-grpc.7ldev.com"]
+          hosts       = [GRPS_URL]
           secret_name = "grpc-tls"
         }
         annotations = {
