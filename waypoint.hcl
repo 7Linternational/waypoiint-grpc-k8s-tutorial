@@ -1,3 +1,15 @@
+variable "REGISTRY_URL" {
+    default     = ""
+    type        = string
+    description = "URL for your container registry."
+}
+
+variable "GRPS_URL" {
+    default     = ""
+    type        = string
+    description = "URL for your TLS enabled gRPC service endpoint."
+}
+
 project = "go-grpc"
 
 app "go-grpc" {
@@ -11,9 +23,13 @@ app "go-grpc" {
     use "pack" {}
     registry {
       use "docker" {
-        image = REGISTRY_URL
+        image = var.REGISTRY_URL
         tag   = "latest"
-        // local = true
+
+        // Set to `true` if you don't want the image to be pushed to your container registry
+        local = false
+
+        // Required for private container registry
         // encoded_auth = filebase64("${path.pwd}/auth.json")
       }
     }
@@ -22,7 +38,10 @@ app "go-grpc" {
   deploy {
     use "kubernetes" {
       probe_path   = "/healthz"
-      image_secret = "gitlab"
+
+      // Required for private container registry
+      // image_secret = "secretname"
+
       pod {
         container {
           port {
@@ -48,9 +67,9 @@ app "go-grpc" {
       ingress "http" {
         default = false
         path    = "/"
-        host    = GRPS_URL
+        host    = var.GRPS_URL
         tls {
-          hosts       = [GRPS_URL]
+          hosts       = [var.GRPS_URL]
           secret_name = "grpc-tls"
         }
         annotations = {
